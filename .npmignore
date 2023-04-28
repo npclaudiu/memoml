@@ -1,0 +1,4 @@
+/tsconfig.json
+/*.config.js
+/*.ts
+!/*.d.ts
