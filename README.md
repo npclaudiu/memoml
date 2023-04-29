@@ -63,7 +63,7 @@ Usage:
 ```js
 import * as MemoML from 'memoml';
 
-const memo = MemoML.parse('             \
+const memo = MemoML.parse('             \n\
     # comment                           \n\
     foo;                                \n\
     bar {                               \n\
@@ -75,8 +75,8 @@ const memo = MemoML.parse('             \
 ');
 ```
 
-The code above will translate the MemoML to an object having the following
-structure:
+The code above will translate the MemoML document to an object having the
+following structure:
 
 ```json
 {
@@ -115,9 +115,9 @@ The library also provides more control over the parsing process. For more
 information, please read the implementation for the `Scanner` and
 `Parser` classes. Please find examples of how to use them in the unit tests.
 
-The scanner was implemented following the excellently written introductory
-guide to parsers and interpreters in
-[Crafting Interpreters](https://craftinginterpreters.com/) (no affiliation).
+The scanner was implemented following the excellently written guide to parsers
+and interpreters in [Crafting Interpreters](https://craftinginterpreters.com/)
+(no affiliation).
 
 ### Limitations
 
@@ -125,7 +125,8 @@ There are some limitations at the moment. Some will be addressed in future
 releases of the library.
 
 - The scanner can only process the text representation in one go.
-- Numbers cannot be represented in scientific notation for now.
+- Numbers cannot be represented in scientific notation.
+- There is no serialization function similar to `JSON.stringify()` yet.
 
 ## License
 
