@@ -33,15 +33,28 @@ export class Location {
 export class Token {
     constructor(
         private _kind: TokenKind,
-        private _lexeme: string | undefined = undefined,
-        private _value: Value | undefined = undefined,
-        private _location: Location | undefined = undefined,
+        private _lexeme?: string,
+        private _value?: Value,
+        private _location?: Location,
     ) { }
 
     get kind(): TokenKind { return this._kind; }
     get lexeme(): string | undefined { return this._lexeme; }
     get value(): Value | undefined { return this._value; }
     get location(): Location | undefined { return this._location; }
+
+    get isLiteral(): boolean {
+        switch (this._kind) {
+            case TokenKind.STRING:
+            case TokenKind.NUMBER:
+            case TokenKind.TRUE:
+            case TokenKind.FALSE:
+            case TokenKind.NULL:
+                return true;
+            default:
+                return false;
+        }
+    }
 
     toString(): string {
         const location = this._location ? `${this._location} ` : '';
@@ -72,7 +85,7 @@ export class Scanner {
         ["true", { kind: TokenKind.TRUE, value: true }],
     ]);
 
-    constructor(fileName: string | undefined, listener: ScannerListener) {
+    constructor(listener: ScannerListener) {
         this._listener = listener;
     }
 
@@ -87,12 +100,7 @@ export class Scanner {
         this.emit(TokenKind.EOF);
     }
 
-    private emit(
-        kind: TokenKind,
-        lexeme: string | undefined = undefined,
-        value: Value | undefined = undefined,
-        location: Location | undefined = undefined,
-    ) {
+    private emit(kind: TokenKind, lexeme?: string, value?: Value, location?: Location) {
         const token = new Token(kind, lexeme, value, location);
         this._listener(token);
     }
@@ -212,6 +220,124 @@ export class Scanner {
     }
 }
 
+enum ParserState {
+    KEY = "KEY",
+    VALUE = "VALUE",
+    SCOPE = "SCOPE",
+    EOF = "EOF",
+}
+
+export type ParserTrace = { state: ParserState; token: Token; };
+
+export class Parser {
+    private _documentRoot: Node = { key: kSchemaName, value: kSchemaVersion, };
+    private _state: ParserState = ParserState.KEY;
+    private _scopeStack: Node[] = [this._documentRoot];
+    private _nextNode: Node = { key: '' };
+    private _trace: ParserTrace[] = [];
+    private _enableTrace: boolean = false;
+
+    constructor(trace: boolean = false) {
+        this._enableTrace = trace;
+    }
+
+    get documentRoot(): Node {
+        if (this._state !== ParserState.EOF) { throw new Error('Incomplete document.'); }
+        return this._documentRoot;
+    }
+
+    get trace() { return this._enableTrace ? this._trace : undefined; }
+
+    parse(token: Token): void {
+        if (this._enableTrace) {
+            this._trace.push({ state: this._state, token });
+        }
+
+        switch (this._state) {
+            case ParserState.KEY: {
+                if (token.kind === TokenKind.IDENTIFIER) {
+                    this._state = ParserState.VALUE;
+                    this._nextNode.key = token.value as string;
+                    return;
+                }
+                if (token.kind === TokenKind.RIGHT_BRACE) {
+                    if (!this.canPopScope()) { break; }
+                    const closingScope = this.currentScope;
+                    this.popScope();
+                    this.addChild(closingScope);
+                    this.newNextNode();
+                    return;
+                }
+                if (token.kind === TokenKind.EOF) {
+                    this._state = ParserState.EOF;
+                    return;
+                }
+                break;
+            }
+            case ParserState.VALUE: {
+                if (token.isLiteral) {
+                    this._state = ParserState.SCOPE;
+                    this._nextNode.value = token.value;
+                    return;
+                }
+                if (token.kind === TokenKind.SEMICOLON || token.kind === TokenKind.LEFT_BRACE) {
+                    this._nextNode.value = true;
+                    // Fall through to the next case.
+                }
+                else {
+                    break;
+                }
+            }
+            case ParserState.SCOPE: {
+                if (token.kind === TokenKind.SEMICOLON) {
+                    this._state = ParserState.KEY;
+                    this.addChild(this._nextNode);
+                    this.newNextNode();
+                    return;
+                }
+                if (token.kind === TokenKind.LEFT_BRACE) {
+                    this._state = ParserState.KEY;
+                    this.pushScope(this._nextNode);
+                    this.newNextNode();
+                    return;
+                }
+                break;
+            }
+            default: {
+                break;
+            }
+        }
+
+        throw new Error(`Unexpected ${token.kind} token "${token.lexeme}" in state ${this._state}.`);
+    }
+
+    private get currentScope(): Node {
+        return this._scopeStack[this._scopeStack.length - 1];
+    };
+
+    private pushScope(node: Node): void {
+        this._scopeStack.push(node);
+    }
+
+    private popScope(): Node | undefined {
+        return this._scopeStack.pop();
+    }
+
+    private canPopScope(): boolean {
+        return this._scopeStack.length > 1;
+    }
+
+    private addChild(node: Node): void {
+        const scope = this.currentScope;
+        scope.children = scope.children || [];
+        scope.children.push(node);
+    }
+
+    private newNextNode(): void {
+        this._nextNode = { key: '' };
+    }
+}
+
 /**
  * Converts a MemoML object into an object.
  */
@@ -219,17 +345,9 @@ export function parse(text: string) {
     if (arguments.length !== 1) throw new TypeError("Invalid number of arguments.");
     if (typeof text !== 'string') throw new TypeError("Invalid argument type.");
 
-    const scanner = new Scanner(undefined, handleToken);
+    const parser = new Parser();
+    const scanner = new Scanner((token) => parser.parse(token));
     scanner.scan(text);
 
-    const memo = {
-        key: kSchemaName,
-        value: kSchemaVersion,
-    };
-
-    return memo;
-
-    function handleToken(token: Token) {
-        console.log(token);
-    }
+    return parser.documentRoot;
 }
