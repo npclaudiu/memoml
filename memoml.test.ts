@@ -15,7 +15,7 @@ interface TokenDesc {
     value?: Value;
 }
 
-/** Factory methods for all types of tokens. Kept separate from the main `Token` class to reduce bundle size (with ~.5K when minified and uncompressed). */
+/** Factory methods for all types of tokens. Kept separate from the main `Token` class to reduce bundle size. */
 class Tokens {
     static eof(lexeme?: string, value?: Value, location?: Location): Token { return new Token(TokenKind.EOF, lexeme, value, location); }
     static leftBrace(lexeme?: string, value?: Value, location?: Location): Token { return new Token(TokenKind.LEFT_BRACE, lexeme, value, location); }
