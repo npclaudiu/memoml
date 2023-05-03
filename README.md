@@ -1,5 +1,10 @@
 # MemoML
 
+![npm](https://img.shields.io/npm/v/memoml)
+![NPM](https://img.shields.io/npm/l/memoml)
+![npm bundle size](https://img.shields.io/bundlephobia/min/memoml)
+![npm](https://img.shields.io/npm/dm/memoml)
+
 > Please note that both the markup language specification and the parser
 > implementation are in an early stage of developmment. Breaking changes
 > might be introduced at any time before version 1.0.0 is released.
