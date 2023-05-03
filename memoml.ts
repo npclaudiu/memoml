@@ -1,5 +1,5 @@
 const kSchemaName = "MemoML";
-const kSchemaVersion = "0.2.0";
+const kSchemaVersion = "0.3.0";
 
 export type Value = string | number | boolean | null;
 

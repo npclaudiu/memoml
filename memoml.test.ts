@@ -3,7 +3,7 @@ import * as MemoML from "./memoml";
 const { Parser, Token, TokenKind, Scanner, } = MemoML;
 
 const kExpectedSpecName = "MemoML";
-const kExpectedSpecVersion = "0.2.0";
+const kExpectedSpecVersion = "0.3.0";
 
 type Node = MemoML.Node;
 type Value = MemoML.Value;
