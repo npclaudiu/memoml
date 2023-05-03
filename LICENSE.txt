@@ -1,4 +1,4 @@
-Copyright 2023 Claudiu Nedelcu. All rights reserved.
+Copyright © 2023 Claudiu Nedelcu. All rights reserved.
 
 This license applies to all files in the MemoML repository and source
 distribution. This includes MemoML's source code, the examples, and tests,

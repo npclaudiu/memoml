@@ -1,69 +1,89 @@
 # MemoML
 
-> Please note that both the markup language specification and the
+> Please note that both the markup language specification and the parser
 > implementation are in an early stage of developmment. Breaking changes
 > might be introduced at any time before version 1.0.0 is released.
 
-## Markup Language
+## Introduction
 
-MemoML is a simple markup language that allows representing nested key-value
-multimaps in text format. This repository provides a MemoML parser library,
-written in TypeScript, that can be used in JavaScript environments such as
-Node.js and web browsers.
+MemoML is a simple markup language that allows representing nested ordered
+[multimaps](https://en.wikipedia.org/wiki/Multimap) in text format. It aims
+to provide a way of representing state that is suitable for driving tools
+in various automation scenarios. The proposed file extension is `.memo`.
+
+This repository provides a MemoML parser library that can be used in
+JavaScript environments such as Node.js and web browsers. It is written
+in TypeScript and has no runtime dependencies.
+
+### Example
 
 ```memo
-# example.memo
+# This is a comment.
 
-# This is a comment. Comments are introduced using the '#' character and
-# span until the end of line.
+# string
+version "0.2.0";
 
-# A document represents a hierarchy of nested scopes where each scope is
-# an associative container.
-#
-# Keys in a scope can repeat any number of times. They represent identifier
-# names and must start with a letter or an underscore, followed by any
-# number of letters, digits or underscores.
-#
-# MemoML supports four data types: string, number, boolean and null.
-# A key-value pair must contain a key and an optional value literal,
-# separated by a whitespace character and must be followed by a semicolon.
-
-# A string key-value pair looks like this:
-version "1.0.0";
-
-# A number key-value pair is similar:
-an_integer 4;
-positiveFloat 2.2;
+# number
+idx 4;
 negativeFloat -3.14;
 fractional .14;
 
-# Booleans are represented by the `true` and `false` keywords:
+# boolean
 enableFoo true;
 enableBar false;
 enableBaz; # Set to true if no value is specified.
 
-# Finally, null values are supported also:
+# null
 document null;
 
-# Keys can be seen as variables declared in a scope. Besides a value, they can
-# also have a multimap associated with them. Multimaps are defined within
-# `{}` blocks, each having its own scope. There is no limit on the scope
-# nesting level.
+# nested
 camera "cam-278" {
-    enabled;
-    position { x: 0; y: 0; z: 0; }
-    orientation { x: 1; y: 1; z: 1; }
+    enabled false;
+    position { x .0; y .0; z .0; }
+    orientation { x .0; y .0; z 1.0; }
 }
+
+# shorthand
+camera "cam-279" enabled;
 ```
 
 ## Library
 
-Usage:
+### Install
+
+```sh
+# npm
+npm install --save memoml
+```
+or
+```sh
+# yarn
+yarn add memoml
+```
+or
+```html
+<!-- html -->
+<script src="https://www.unpkg.com/memoml@0.1.0/memoml.js"></script>
+```
+
+The library already ships with Typescript type definitions.
+
+### Import
+
+To use the library, you can import it as follows:
 
 ```js
-import * as MemoML from 'memoml';
+import * as MemoML from "memoml";
+```
 
-const memo = MemoML.parse('             \n\
+When referenced directly from a HTML page, the bundle will define `MemoML`
+as a global variable.
+
+### Usage
+
+```js
+const memo = MemoML.parse(
+  '                                     \n\
     # comment                           \n\
     foo;                                \n\
     bar {                               \n\
@@ -72,7 +92,8 @@ const memo = MemoML.parse('             \n\
             y null;                     \n\
         }                               \n\
     }                                   \n\
-');
+  '
+);
 ```
 
 The code above will translate the MemoML document to an object having the
@@ -111,26 +132,20 @@ following structure:
 }
 ```
 
-The library also provides more control over the parsing process. For more
-information, please read the implementation for the `Scanner` and
-`Parser` classes. Please find examples of how to use them in the unit tests.
-
-The scanner was implemented following the excellently written guide to parsers
-and interpreters in [Crafting Interpreters](https://craftinginterpreters.com/)
-(no affiliation).
-
 ### Limitations
 
 There are some limitations at the moment. Some will be addressed in future
 releases of the library.
 
-- The scanner can only process the text representation in one go.
+Features not supported yet or have limited support:
+
 - Numbers cannot be represented in scientific notation.
+- Plain arrays are not supported yet.
+- The scanner can only process the text representation in one go.
 - There is no serialization function similar to `JSON.stringify()` yet.
+- Diagnostics lack exact location and parsing stops at first error.
+- White space and comments are not emitted by the scanner.
 
 ## License
 
-Licensed under the [2-Clause BSD License](LICENSE.txt).
-
----
-© 2023 Claudiu Nedelcu. All rights reserved.
+Licensed under the [2-Clause BSD](LICENSE.txt) license.
