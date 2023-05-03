@@ -47,28 +47,29 @@ camera "cam-278" {
 camera "cam-279" enabled;
 ```
 
-## Library
+## Installing the library
 
-### Install
+Using `npm`:
 
 ```sh
-# npm
 npm install --save memoml
 ```
-or
+
+Or using `yarn`:
+
 ```sh
-# yarn
 yarn add memoml
 ```
-or
+
+Or in a HTML page directly:
+
 ```html
-<!-- html -->
 <script src="https://www.unpkg.com/memoml@0.1.0/memoml.js"></script>
 ```
 
 The library already ships with Typescript type definitions.
 
-### Import
+## Usage
 
 To use the library, you can import it as follows:
 
@@ -77,9 +78,8 @@ import * as MemoML from "memoml";
 ```
 
 When referenced directly from a HTML page, the bundle will define `MemoML`
-as a global variable.
-
-### Usage
+as a global variable. Then, you can use `parse()` to parse a MemoML-encoded
+string, like in the example below.
 
 ```js
 const memo = MemoML.parse(
@@ -132,7 +132,7 @@ following structure:
 }
 ```
 
-### Limitations
+## Limitations
 
 There are some limitations at the moment. Some will be addressed in future
 releases of the library.
