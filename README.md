@@ -69,7 +69,7 @@ yarn add memoml
 Or in a HTML page directly:
 
 ```html
-<script src="https://www.unpkg.com/memoml@0.1.0/memoml.js"></script>
+<script src="https://www.unpkg.com/memoml@0.2.0/memoml.js"></script>
 ```
 
 The library already ships with Typescript type definitions.
@@ -107,7 +107,7 @@ following structure:
 ```json
 {
   "key": "MemoML",
-  "value": "0.1.0",
+  "value": "0.2.0",
   "children": [
     {
       "key": "foo",

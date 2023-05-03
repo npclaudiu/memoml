@@ -1,6 +1,6 @@
 {
   "name": "memoml",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "MemoML parser",
   "main": "memoml.js",
   "types": "memoml.d.ts",

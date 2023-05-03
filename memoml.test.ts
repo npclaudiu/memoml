@@ -2,6 +2,9 @@ import * as MemoML from "./memoml";
 
 const { Parser, Token, TokenKind, Scanner, } = MemoML;
 
+const kExpectedSpecName = "MemoML";
+const kExpectedSpecVersion = "0.2.0";
+
 type Node = MemoML.Node;
 type Value = MemoML.Value;
 type Parser = MemoML.Parser;
@@ -87,8 +90,8 @@ describe('MemoML', () => {
             let memo;
             expect(() => memo = MemoML.parse('')).not.toThrow();
             expect(memo).toStrictEqual(expect.objectContaining({
-                key: "MemoML",
-                value: "0.1.0",
+                key: kExpectedSpecName,
+                value: kExpectedSpecVersion,
             }));
         });
 
@@ -106,8 +109,8 @@ describe('MemoML', () => {
             ')).not.toThrow();
 
             expect(memo).toStrictEqual(expect.objectContaining({
-                key: "MemoML",
-                value: "0.1.0",
+                key: kExpectedSpecName,
+                value: kExpectedSpecVersion,
                 children: [
                     {
                         key: "foo",
@@ -342,8 +345,8 @@ describe('MemoML', () => {
             ]);
 
             expect(parser.documentRoot).toStrictEqual(expect.objectContaining({
-                key: "MemoML",
-                value: "0.1.0",
+                key: kExpectedSpecName,
+                value: kExpectedSpecVersion,
                 children: [
                     { key: 'string_id', value: 'str', },
                     { key: 'number_id', value: -2.7, },
@@ -369,8 +372,8 @@ describe('MemoML', () => {
             ]);
 
             expect(parser.documentRoot).toStrictEqual(expect.objectContaining({
-                key: "MemoML",
-                value: "0.1.0",
+                key: kExpectedSpecName,
+                value: kExpectedSpecVersion,
                 children: [
                     {
                         key: 'parent',
