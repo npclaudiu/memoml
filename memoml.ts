@@ -26,7 +26,7 @@ export class Location {
     constructor(private _line: number, private _column: number = 0) { }
     get line() { return this._line; }
     get column() { return this._column; }
-    static from(line: number, column: number = 0) { return new Location(line, column); }
+    static from(line: number, column = 0) { return new Location(line, column); }
     toString(): string { return `${this._line}:${this._column}`; }
 }
 
@@ -57,20 +57,16 @@ export class Token {
     }
 
     toString(): string {
-        const location = this._location ? `${this._location} ` : '';
-        return `${location}${this._kind} "${this._lexeme || ''}" ${this._value}`;
+        const location = this._location instanceof Location ? `${this._location.toString()} ` : '';
+        return `${location}${this._kind} "${this._lexeme ?? ''}" ${this._value ?? ''}`;
     }
 }
 
-export class MemoSyntaxError extends Error {
-    constructor(message: string, location?: Location) {
-        super(message);
-    }
-}
+export class MemoSyntaxError extends Error { }
 
 export type ScannerListener = (token: Token) => void;
 
-type KeywordInfo = { kind: TokenKind, value?: Value };
+interface KeywordInfo { kind: TokenKind, value?: Value }
 
 const kReservedKeywords: Map<string, KeywordInfo> = new Map<string, KeywordInfo>([
     ["false", { kind: TokenKind.FALSE, value: false }],
@@ -95,10 +91,10 @@ function isAlphaNumeric(c: string): boolean {
 }
 
 export class Scanner {
-    private _start: number = 0;
-    private _current: number = 0;
-    private _line: number = 1;
-    private _source: string = '';
+    private _start = 0;
+    private _current = 0;
+    private _line = 1;
+    private _source = '';
     private _listener: ScannerListener;
 
     constructor(listener: ScannerListener) {
@@ -186,7 +182,7 @@ export class Scanner {
         }
 
         if (this.isAtEnd()) {
-            throw new MemoSyntaxError("Unterminated string.", Location.from(this._line));
+            throw new MemoSyntaxError("Unterminated string.");
         }
 
         this.advance();
@@ -212,7 +208,7 @@ export class Scanner {
         }
 
         const text = this._source.slice(this._start, this._current);
-        const { kind, value } = kReservedKeywords.get(text) || { kind: TokenKind.IDENTIFIER, value: text };
+        const { kind, value } = kReservedKeywords.get(text) ?? { kind: TokenKind.IDENTIFIER, value: text };
 
         this.emit(kind, text, value);
     }
@@ -225,7 +221,7 @@ const enum ParserState {
     EOF,
 }
 
-export type ParserTrace = { state: ParserState; token: Token; };
+export interface ParserTrace { state: ParserState; token: Token; }
 
 export class Parser {
     private _documentRoot: Node = { key: kSchemaName, value: kSchemaVersion, };
@@ -233,9 +229,9 @@ export class Parser {
     private _scopeStack: Node[] = [this._documentRoot];
     private _nextNode: Node = { key: '' };
     private _trace: ParserTrace[] = [];
-    private _enableTrace: boolean = false;
+    private _enableTrace = false;
 
-    constructor(trace: boolean = false) {
+    constructor(trace = false) {
         this._enableTrace = trace;
     }
 
@@ -286,6 +282,7 @@ export class Parser {
                     break;
                 }
             }
+            // eslint-disable-next-line no-fallthrough
             case ParserState.SCOPE: {
                 if (token.kind === TokenKind.SEMICOLON) {
                     this._state = ParserState.KEY;
@@ -306,12 +303,12 @@ export class Parser {
             }
         }
 
-        throw new Error(`Unexpected ${token.kind} token "${token.lexeme}" in state ${this._state}.`);
+        throw new Error(`Unexpected ${token.kind} token "${token.lexeme ?? ''}" in state ${this._state}.`);
     }
 
     private get currentScope(): Node {
         return this._scopeStack[this._scopeStack.length - 1];
-    };
+    }
 
     private pushScope(node: Node): void {
         this._scopeStack.push(node);
@@ -327,7 +324,7 @@ export class Parser {
 
     private addChild(node: Node): void {
         const scope = this.currentScope;
-        scope.children = scope.children || [];
+        scope.children = scope.children ?? [];
         scope.children.push(node);
     }
 

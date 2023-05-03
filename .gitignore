@@ -2,6 +2,7 @@
 /**/*.d.ts
 /**/*.d.ts.map
 /**/*.js
+!/**/.eslintrc.js
 !/**/*.config.js
 /**/*.js.map
 /**/*.tsbuildinfo
